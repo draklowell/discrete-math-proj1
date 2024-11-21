@@ -18,15 +18,15 @@ City = namedtuple("City", ("roads", "is_center"))
 # is_center: bool, True when city is central
 
 
-# def read_map(path: str) -> Map:
-#     """
-#     Read map data from the file at the given path.
+def read_map(path: str) -> Map:
+    """
+    Read map data from the file at the given path.
 
-#     :param path: str, path to the file
+    :param path: str, path to the file
 
-#     :returns: Map
-#     """
-#     with open(path, 'r', encoding='utf-8') as f:
+    :returns: Map
+    """
+    # with open(path, 'r', encoding='utf-8') as f:
 
 
 def read_damaged_roads(path: str) -> dict[str, float]:
@@ -51,14 +51,14 @@ def read_damaged_roads(path: str) -> dict[str, float]:
         return damaged_roads
 
 
-# def get_components(map: Map, damaged_roads: dict[str, float]) -> list[set[str]]:
-#     """
-#     Get isolated regions of the map.
+def get_components(map: Map, damaged_roads: dict[str, float]) -> list[set[str]]:
+    """
+    Get isolated regions of the map.
 
-#     :param map: Map
-#     :param damaged_roads: dict[str, float], list of damaged roads
+    :param map: Map
+    :param damaged_roads: dict[str, float], list of damaged roads
 
-#     :returns: list[set[str]], list of all isolated regions, where each region
-#     is represented by the set of cities in it
-#     """
-#     ...
+    :returns: list[set[str]], list of all isolated regions, where each region
+    is represented by the set of cities in it
+    """
+    ...
