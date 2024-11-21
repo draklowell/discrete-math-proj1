@@ -18,20 +18,20 @@ City = namedtuple("City", ("roads", "is_center"))
 # is_center: bool, True when city is central
 
 
-def read_map(path: str) -> Map:
-    """
-    Read map data from the file at the given path.
+# def read_map(path: str) -> Map:
+#     """
+#     Read map data from the file at the given path.
 
-    :param path: str, path to the file
+#     :param path: str, path to the file
 
-    :returns: Map
-    """
-    ...
+#     :returns: Map
+#     """
+#     with open(path, 'r', encoding='utf-8') as f:
 
 
 def read_damaged_roads(path: str) -> dict[str, float]:
     """
-    Read list of damaged roadsfrom the file at the given path.
+    Read list of damaged roads from the file at the given path.
 
     :param path: str, path to the file
 
@@ -39,17 +39,26 @@ def read_damaged_roads(path: str) -> dict[str, float]:
     where key is the road name and value is the complexity of repairing
     it
     """
-    ...
+    damaged_roads = {}
+
+    with open(path, 'r', encoding='utf-8') as file:
+        for line in file:
+            line = line.strip()
+
+            road_name, damage = line.split(',')
+            damaged_roads[road_name] = float(damage)
+
+        return damaged_roads
 
 
-def get_components(map: Map, damaged_roads: dict[str, float]) -> list[set[str]]:
-    """
-    Get isolated regions of the map.
+# def get_components(map: Map, damaged_roads: dict[str, float]) -> list[set[str]]:
+#     """
+#     Get isolated regions of the map.
 
-    :param map: Map
-    :param damaged_roads: dict[str, float], list of damaged roads
+#     :param map: Map
+#     :param damaged_roads: dict[str, float], list of damaged roads
 
-    :returns: list[set[str]], list of all isolated regions, where each region
-    is represented by the set of cities in it
-    """
-    ...
+#     :returns: list[set[str]], list of all isolated regions, where each region
+#     is represented by the set of cities in it
+#     """
+#     ...
