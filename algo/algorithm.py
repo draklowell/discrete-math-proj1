@@ -1,21 +1,7 @@
 """
 Module for working with algorithms for graph
 """
-from collections import namedtuple
-
-
-Map = namedtuple("Map", ("roads", "cities"))
-# roads: dict[str, Road], each key is a name of the road
-# cities: dict[str, City], each key is a name of the city
-
-Road = namedtuple("Road", ("city1", "city2", "distance"))
-# city1: str, city name
-# city2: str, city name
-# distance: float, distance of the road
-
-City = namedtuple("City", ("roads", "is_center"))
-# roads: list[str], list of all road names connected to this city
-# is_center: bool, True when city is central
+from algo.datatypes import Map, Road
 
 def get_components(map: Map, damaged_roads: dict[str, float]) -> list[list[Road]]:
     """
@@ -24,7 +10,7 @@ def get_components(map: Map, damaged_roads: dict[str, float]) -> list[list[Road]
     :param map: Map
     :param damaged_roads: dict[str, float], list of damaged roads
 
-    :returns: list[list[Road]], 
+    :returns: list[list[Road]],
     """
     visited = set()
     components_mas = []
@@ -37,7 +23,7 @@ def get_components(map: Map, damaged_roads: dict[str, float]) -> list[list[Road]
 
             if node not in visited:
                 visited.add(node)
-                
+
                 for r in map.cities[node].roads:
                     if r in damaged_roads:
                         temp.append(r)
@@ -83,7 +69,7 @@ def spanning_tree_prima(map: Map, nodes: list, damaged_roads: dict[str, float]) 
     while len(nodes) > 1:
         for road in nodes[0]:
             availvable_roads.append(road)
-        
+
         availvable_roads = list(set(availvable_roads) - mst)
 
         choice = min(availvable_roads, key=lambda x: damaged_roads[x])
