@@ -1,6 +1,7 @@
 """
 Datatypes used in other modules are declared here.
 """
+
 from collections import namedtuple
 
 Map = namedtuple("Map", ("roads", "cities"))

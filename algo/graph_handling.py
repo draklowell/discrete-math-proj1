@@ -1,6 +1,7 @@
 """
 Module for working with the map in the form of graph.
 """
+
 from algo.datatypes import Map
 
 
@@ -12,7 +13,7 @@ def read_map(path: str) -> Map:
 
     :returns: Map
     """
-    # with open(path, 'r', encoding='utf-8') as f:
+    pass
 
 
 def read_damaged_roads(path: str) -> dict[str, float]:
@@ -27,11 +28,11 @@ def read_damaged_roads(path: str) -> dict[str, float]:
     """
     damaged_roads = {}
 
-    with open(path, 'r', encoding='utf-8') as file:
+    with open(path, "r", encoding="utf-8") as file:
         for line in file:
             line = line.strip()
 
-            road_name, damage = line.split(',')
+            road_name, damage = line.split(",")
             damaged_roads[road_name] = float(damage)
 
         return damaged_roads

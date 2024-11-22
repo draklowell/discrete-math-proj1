@@ -1,7 +1,9 @@
 """
 Module for working with algorithms for graph
 """
+
 from algo.datatypes import Map, Road
+
 
 def get_components(map: Map, damaged_roads: dict[str, float]) -> list[list[Road]]:
     """
@@ -14,8 +16,9 @@ def get_components(map: Map, damaged_roads: dict[str, float]) -> list[list[Road]
     """
     visited = set()
     components_mas = []
+
     # будемо починати з обл центра
-    def dfs_iterative(start:str):
+    def dfs_iterative(start: str):
         stack = [start]  # Ініціалізуємо стек із початковим вузлом
         temp = []
         while stack:
@@ -34,26 +37,32 @@ def get_components(map: Map, damaged_roads: dict[str, float]) -> list[list[Road]
                         continue
                     if map.roads[r].city1 != node and map.roads[r].city1 not in visited:
                         stack.append(map.roads[r].city1)
-                    elif map.roads[r].city2 != node and map.roads[r].city2 not in visited:
+                    elif (
+                        map.roads[r].city2 != node and map.roads[r].city2 not in visited
+                    ):
                         stack.append(map.roads[r].city2)
         components_mas.append(temp)
 
     components = 0
     for city_name in map.cities:
         if city_name not in visited:
-            components+=1
+            components += 1
             dfs_iterative(city_name)
     return components_mas
 
-def spanning_tree_prima(map: Map, nodes: list, damaged_roads: dict[str, float]) -> list[str]:
+
+def spanning_tree_prima(
+    map: Map, nodes: list, damaged_roads: dict[str, float]
+) -> list[str]:
     """
     Building a spanning tree using the Prima algorithm
     """
+
     def find_nodes_with_same_roads():
         res = {}
         for road in damaged_roads:
             temp = []
-            for ind,node in enumerate(nodes):
+            for ind, node in enumerate(nodes):
                 if road in node:
                     temp.append(ind)
                 if len(temp) == 2:
@@ -74,7 +83,7 @@ def spanning_tree_prima(map: Map, nodes: list, damaged_roads: dict[str, float]) 
 
         choice = min(availvable_roads, key=lambda x: damaged_roads[x])
 
-        to = set(map.roads[choice][:2])-visited
+        to = set(map.roads[choice][:2]) - visited
         from_ = visited & set(map.roads[choice][:2])
 
         for ind, r in enumerate(availvable_roads):
