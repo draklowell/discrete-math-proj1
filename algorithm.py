@@ -60,6 +60,9 @@ def get_components(map: Map, damaged_roads: dict[str, float]) -> list[list[Road]
     return components_mas
 
 def spanning_tree_prima(map: Map, nodes: list, damaged_roads: dict[str, float]) -> list[str]:
+    """
+    Building a spanning tree using the Prima algorithm
+    """
     def find_nodes_with_same_roads():
         res = {}
         for road in damaged_roads:
@@ -94,11 +97,3 @@ def spanning_tree_prima(map: Map, nodes: list, damaged_roads: dict[str, float]) 
         nodes.pop(0)
         mst.add(choice)
     return mst
-
-if __name__ == '__main__':
-    # import doctest
-    # print(doctest.testmod())
-    map = Map({'r1':Road('c1', 'c2', 4), 'r2':Road('c2', 'c3', 2), 'r3':Road('c2', 'c4', 5)}, {'c1': City(['r1'], True), 'c2': City(['r1','r2', 'r3'], False), 'c3': City(['r2'], False), 'c4': City(['r3'], False)})
-    damaged_roads = {'r2': 2.0, 'r3': 5.0}
-    print(get_components(map,damaged_roads))
-    print(spanning_tree_prima(map,[['r2', 'r3'], ['r2'], ['r3']],damaged_roads))
