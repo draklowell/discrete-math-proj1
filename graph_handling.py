@@ -52,4 +52,30 @@ def get_components(map: Map, damaged_roads: dict[str, float]) -> list[set[str]]:
     :returns: list[set[str]], list of all isolated regions, where each region
     is represented by the set of cities in it
     """
-    ...
+    roads, cities = map
+
+    all_cities_graph = {}
+    for el in cities.keys():
+        all_cities_graph.setdefault(el, [])
+
+    for road, value in roads.items():
+        if road not in damaged_roads.keys():
+            all_cities_graph[value.city1].append(value.city2)
+            all_cities_graph[value.city2].append(value.city1)
+
+    regions = []
+    def find_connected_cities(city):
+        region.add(city)
+        visited_cities.add(city)
+        for new_city in all_cities_graph.get(city):
+            if not new_city in visited_cities and not new_city in region:
+                find_connected_cities(new_city)
+        return region
+
+    visited_cities = set()
+    for city in all_cities_graph.keys():
+        region = set()
+        if city not in visited_cities:
+            regions.append(find_connected_cities(city))
+
+    return regions
