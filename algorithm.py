@@ -81,9 +81,8 @@ def spanning_tree_prima(map: Map, nodes: list, damaged_roads: dict[str, float]) 
 
     availvable_roads = []
     while len(nodes) > 1:
-        for road in nodes[0]:
-            availvable_roads.append(road)
-        
+        availvable_roads.extend(nodes[0])
+
         availvable_roads = list(set(availvable_roads) - mst)
 
         choice = min(availvable_roads, key=lambda x: damaged_roads[x])
@@ -94,6 +93,9 @@ def spanning_tree_prima(map: Map, nodes: list, damaged_roads: dict[str, float]) 
         for ind, r in enumerate(availvable_roads):
             if to in from_to[r] and len(from_to[r] & from_) >= 1:
                 del availvable_roads[ind]
+                for i, node in enumerate(nodes):
+                    if r in node:
+                        node[i].remove(r)
         nodes.pop(0)
         mst.add(choice)
     return mst
