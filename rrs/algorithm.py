@@ -3,58 +3,61 @@ Rapid Response Service library.
 Module for working with algorithms for graph.
 """
 
-from rrs.datatypes import Map, Road, City
+from rrs.datatypes import Map
 
 
-def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[list[str]]:
+def get_isolated_roads(map_: Map, damaged_roads: dict[str, float]) -> list[set[str]]:
     """
     Get isolated regions of the map.
 
     :param map: Map
     :param damaged_roads: dict[str, float], list of damaged roads
 
-    :returns: list[list[str]], roads names that connect isolated parts to other parts of the map
+    :returns: list[set[str]], roads names that connect isolated parts to other parts of the map
     """
-    visited = set()
-    components_mas = []
+    visited_cities = set()
+    isolated_roads = []
 
-    # будемо починати з обл центра
+    # Будемо починати з обл центра
     def dfs_iterative(start: str):
         stack = [start]  # Ініціалізуємо стек із початковим вузлом
-        temp = []
+        region_roads = set()
         while stack:
-            node = stack.pop()
+            city = stack.pop()
 
-            if node not in visited:
-                visited.add(node)
+            if city in visited_cities:
+                continue
 
-                for r in map.cities[node].roads:
-                    if r in damaged_roads:
-                        temp.append(r)
+            visited_cities.add(city)
+            for road in map_.cities[city].roads:
+                if road in damaged_roads:
+                    region_roads.add(road)
 
-                # Додаємо сусідів вузла у стек (у зворотному порядку, щоб порядок обходу був правильний)
-                for r in map.cities[node].roads:
-                    if r in damaged_roads:
+                # Додаємо сусідів вузла у стек (у зворотному порядку, щоб порядок
+                # обходу був правильний)
+                for road in map_.cities[city].roads:
+                    if road in damaged_roads:
                         continue
-                    if map.roads[r].city1 != node and map.roads[r].city1 not in visited:
-                        stack.append(map.roads[r].city1)
-                    elif (
-                        map.roads[r].city2 != node and map.roads[r].city2 not in visited
-                    ):
-                        stack.append(map.roads[r].city2)
-        components_mas.append(temp)
 
-    components = 0
-    for city_name in map.cities:
-        if city_name not in visited:
-            components += 1
+                    city1 = map_.roads[road].city1
+                    city2 = map_.roads[road].city2
+
+                    if city1 != city and city1 not in visited_cities:
+                        stack.append(city1)
+                    elif city2 != city and city2 not in visited_cities:
+                        stack.append(city2)
+
+        isolated_roads.append(region_roads)
+
+    for city_name in map_.cities:
+        if city_name not in visited_cities:
             dfs_iterative(city_name)
-    return components_mas
+    return isolated_roads
 
 
 def get_roads_to_recover(
-    map: Map, isolated_roads: list[list[str]], damaged_roads: dict[str, float]
-) -> list[str]:
+    map_: Map, isolated_roads: list[list[str]], damaged_roads: dict[str, float]
+) -> set[str]:
     """
     Get roads to recover as a spanning tree using the Prima algorithm.
 
@@ -62,39 +65,39 @@ def get_roads_to_recover(
     :param isolated_roads: list[list[str]], roads names that connect isolated regions from
     get_isolated_roads
     :param damaged_roads: dict[str, float], list of damaged roads
+
+    :returns: set[str], roads to recover
     """
 
-    def find_nodes_with_same_roads():
-        res = {}
-        for road in damaged_roads:
-            temp = []
-            for ind, node in enumerate(isolated_roads):
-                if road in node:
-                    temp.append(ind)
-                if len(temp) == 2:
-                    res[road] = temp
-                    break
-        return res
+    from_to = {}
+    for road in damaged_roads:
+        components_connected = []
+        for index, component in enumerate(isolated_roads):
+            if road in component:
+                components_connected.append(index)
+
+            if len(components_connected) == 2:
+                from_to[road] = tuple(components_connected)
+                break
 
     mst = set()  # Список для збереження мінімального кістякового дерева
     visited = set()  # Множина для збереження відвіданих вузлів
-    from_to = find_nodes_with_same_roads()
 
-    availvable_roads = []
+    available_roads = []
     while len(isolated_roads) > 1:
         for road in isolated_roads[0]:
-            availvable_roads.append(road)
+            available_roads.append(road)
 
-        availvable_roads = list(set(availvable_roads) - mst)
+        available_roads = list(set(available_roads) - mst)
 
-        choice = min(availvable_roads, key=lambda x: damaged_roads[x])
+        choice = min(available_roads, key=lambda x: damaged_roads[x])
 
-        to = set(map.roads[choice][:2]) - visited
-        from_ = visited & set(map.roads[choice][:2])
+        to = set(map_.roads[choice][:2]) - visited
+        from_ = visited & set(map_.roads[choice][:2])
 
-        for ind, r in enumerate(availvable_roads):
-            if to in from_to[r] and len(from_to[r] & from_) >= 1:
-                del availvable_roads[ind]
+        for index, road in enumerate(available_roads):
+            if to in from_to[road] and len(from_to[road] & from_) >= 1:
+                del available_roads[index]
         isolated_roads.pop(0)
         mst.add(choice)
 
