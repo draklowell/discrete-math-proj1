@@ -6,6 +6,28 @@ Module for working with the map in the form of graph.
 from rrs.datatypes import Map, Road, City
 
 
+def get_dot_graph(map_: Map, damaged_roads: dict[str, float]) -> str:
+    """
+    Generate .dot graph from the graph data.
+
+    :param map_: Map
+    :param damaged_roads: dict[str, float], list of damaged roads
+
+    :returns: str, .dot graph
+    """
+    data = "graph{\n"
+    for road_name, road in map_.roads.items():
+        if road_name in damaged_roads:
+            data += f'"{road.city1}" -- "{road.city2}" '
+            data += f'[weight={road.distance}; label="{road_name}({damaged_roads[road_name]})"'
+            data += ";color=red]\n"
+        else:
+            data += f'"{road.city1}" -- "{road.city2}"'
+            data += f'[weight={road.distance}; label="{road_name}"]\n'
+
+    return data + "}"
+
+
 def city_roads_names(city, file_listed) -> list:
     """
     Find all names of roads connected to the city.
