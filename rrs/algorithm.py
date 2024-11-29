@@ -85,9 +85,7 @@ def get_roads_to_recover(
 
     available_roads = []
     while len(isolated_roads) > 1:
-        for road in isolated_roads[0]:
-            available_roads.append(road)
-
+        available_roads.extend(isolated_roads[0])
         available_roads = list(set(available_roads) - mst)
 
         choice = min(available_roads, key=lambda x: damaged_roads[x])
@@ -98,6 +96,9 @@ def get_roads_to_recover(
         for index, road in enumerate(available_roads):
             if to in from_to[road] and len(from_to[road] & from_) >= 1:
                 del available_roads[index]
+                for isolated_road_index, component in enumerate(isolated_roads):
+                    if road in component:
+                        component[isolated_road_index].remove(road)
         isolated_roads.pop(0)
         mst.add(choice)
 
