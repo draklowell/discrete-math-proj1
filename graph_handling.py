@@ -46,19 +46,22 @@ def read_damaged_roads(path: str) -> dict[str, float]:
             line = line.strip()
 
             road_name, damage = line.split(',')
+            road_name = road_name.strip()
+            damage = damage.strip()
+
             damaged_roads[road_name] = float(damage)
 
         return damaged_roads
 
 
-def get_components(map: Map, damaged_roads: dict[str, float]) -> list[set[str]]:
-    """
-    Get isolated regions of the map.
+# def get_components(map: Map, damaged_roads: dict[str, float]) -> list[set[str]]:
+#     """
+#     Get isolated regions of the map.
 
-    :param map: Map
-    :param damaged_roads: dict[str, float], list of damaged roads
+#     :param map: Map
+#     :param damaged_roads: dict[str, float], list of damaged roads
 
-    :returns: list[set[str]], list of all isolated regions, where each region
-    is represented by the set of cities in it
-    """
-    ...
+#     :returns: list[set[str]], list of all isolated regions, where each region
+#     is represented by the set of cities in it
+#     """
+#     ...
