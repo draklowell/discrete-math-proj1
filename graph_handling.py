@@ -36,6 +36,25 @@ def read_map(path: str) -> Map:
     :param path: str, path to the file
 
     :returns: Map
+
+    >>> read_map('map.csv')
+    Map(\
+roads={\
+'M10': Road(city1='Львів', city2='Рясне-Руське', distance=9.61), \
+'E40.1': Road(city1='Рясне-Руське', city2='Холодновідка', distance=5.82), \
+'M11': Road(city1='Львів', city2='Холодновідка', distance=8.23), \
+'E40.2': Road(city1='Холодновідка', city2='Сокільники', distance=6.13), \
+'E471': Road(city1='Львів', city2='Сокільники', distance=8.02), \
+'T1416': Road(city1='Сокільники', city2='Пустомити', distance=7.75)\
+}, \
+cities={\
+'Львів': City(roads=['M10', 'M11', 'E471'], is_center=True), \
+'Рясне-Руське': City(roads=['M10', 'E40.1'], is_center=False), \
+'Холодновідка': City(roads=['E40.1', 'M11', 'E40.2'], is_center=False), \
+'Сокільники': City(roads=['E40.2', 'E471', 'T1416'], is_center=False), \
+'Пустомити': City(roads=['T1416'], is_center=False)\
+}\
+)
     """
     roads, cities = {}, {}
 
@@ -47,16 +66,17 @@ def read_map(path: str) -> Map:
         cities.setdefault(center_city, City(roads=center_city_roads, is_center=True))
 
         for line in listed_file[1:]:
-            road, c1, c2, distnce = line.split(', ')
+            line = line.split(',')
+            road, c1, c2, distnce = [el.strip() for el in line]
 
-            distnce = float(distnce.strip())
+            distnce = float(distnce)
             roads.setdefault(road, Road(city1=c1, city2=c2, distance=distnce))
 
             c1_roads = city_roads_names(c1, listed_file)
             cities.setdefault(c1, City(c1_roads, is_center=False))
             c2_roads = city_roads_names(c2, listed_file)
             cities.setdefault(c2, City(c2_roads, is_center=False))
-        
+
     return Map(roads, cities)
 
 
