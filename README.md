@@ -71,7 +71,35 @@ P.S. `stdout` - вивід у термінал
 
 Приклади використання:
 ```bash
-python cli.py -m map.csv -i damaged-roads.csv -o roads-to-recover -c isolated-regions
-python cli.py -m map.csv -i damaged-roads.csv
+$> python cli.py -m examples/small-map.csv -i examples/small-damaged-roads.csv -o roads-to-recover -c isolated-regions
+Successfully found isolated regions and stored to "isolated-regions"
+Successfully found best strategy to recover roads and stored to "roads-to-recover"
 ```
+
+```bash
+$> python cli.py -m examples/small-map.csv -i examples/small-damaged-roads.csv
+Successfully found isolated regions:
+ - Deannamouth, New Shannon
+ - Port Jonathan, North Sydneyview
+ - Omarfurt
+ - Lawrenceland, Meadowsberg
+
+Successfully found best strategy to recover roads:
+ - T2
+ - M9
+ - M14
+```
+
 ## Робота з графічним інтерфейсом
+Щоб запустити інтерфейс, потрібно викликати таку команду:
+```bash
+$> python gui.py
+```
+При цьому існують такі залежності, які потрібно попередньо встановити:
+```bash
+$> pip install Pillow pydot
+```
+Під час запуску Вам запропонується обрати файл карти та файл пошкоджених доріг. Після цього відобразиться панель з відображеною мапою та кнопка `Порахувати`.
+![Screenshot before](screenshots/input.png)
+Після натискання цієї кнопки, програма здійснить розрахунок доріг, які найвигідніше відремонтувати та виведе їх, заодно відобразивши на карті.
+![Screenshot after](screenshots/output.png)
