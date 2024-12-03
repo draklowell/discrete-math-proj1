@@ -6,7 +6,9 @@ from tkinter import filedialog
 
 import pydot
 
-from algorithm import spanning_tree_prima, get_components, Map
+from rrs.algorithm import spanning_tree_prima, get_components
+from rrs.datatypes import Map
+from rrs.files import read_map
 from graph_handling import read_map, read_damaged_roads
 
 def create_graph(map_:Map, damaged_roads:dict, repaired_roads:list[str]=None) -> str:
