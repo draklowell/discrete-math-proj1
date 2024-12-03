@@ -2,7 +2,9 @@
 Rapid Response Service library.
 Module for working with algorithms for graph.
 """
-from rrs.datatypes import Map
+
+from rrs.datatypes import Map, Road, City
+
 
 def check_same_road(map: Map, check_road: str) -> bool:
     """
@@ -26,7 +28,9 @@ def check_same_road(map: Map, check_road: str) -> bool:
     return False
 
 
-def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[tuple[list[Road],list[City]]]:
+def get_isolated_roads(
+    map: Map, damaged_roads: dict[str, float]
+) -> list[tuple[list[Road], list[City]]]:
     """
     Get isolated regions of the map.
 
@@ -34,7 +38,7 @@ def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[tuple[
     :param damaged_roads: dict[str, float], list of damaged roads
 
     :returns: list[tuple[list[Road],list[City]]], roads names that connect
-    isolated parts to other parts of the map and city names in this connectivity component 
+    isolated parts to other parts of the map and city names in this connectivity component
     """
     visited_cities = set()
     isolated_roads = []
@@ -53,7 +57,7 @@ def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[tuple[
 
             for road in map.cities[city].roads:
                 if road in damaged_roads and road not in region_roads:
-                    if not check_same_road(map,road):
+                    if not check_same_road(map, road):
                         region_roads.append(road)
 
             for road in map.cities[city].roads:
@@ -68,7 +72,7 @@ def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[tuple[
                 elif city2 != city and city2 not in visited_cities:
                     stack.append(city2)
 
-        isolated_roads.append((region_roads,region_cities))
+        isolated_roads.append((region_roads, region_cities))
 
     for city_name in map.cities:
         if city_name not in visited_cities:
@@ -76,8 +80,11 @@ def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[tuple[
     return isolated_roads
 
 
-def get_roads_to_recover(map: Map, isolated_roads_city: list[tuple[list[Road],list[City]]],
-                          damaged_roads: dict[str, float]) -> set[str]:
+def get_roads_to_recover(
+    map: Map,
+    isolated_roads_city: list[tuple[list[Road], list[City]]],
+    damaged_roads: dict[str, float],
+) -> set[str]:
     """
     Get roads to recover as a spanning tree using the Prima algorithm.
 
@@ -90,11 +97,12 @@ def get_roads_to_recover(map: Map, isolated_roads_city: list[tuple[list[Road],li
     :returns: set[str], roads to recover
 
     """
+
     def find_nodes_with_same_roads():
         res = {}
         for road in damaged_roads:
             components_connected = []
-            for index,component in enumerate(isolated_roads_city):
+            for index, component in enumerate(isolated_roads_city):
                 component = component[0]
                 if road in component:
                     components_connected.append(index)
@@ -115,7 +123,7 @@ def get_roads_to_recover(map: Map, isolated_roads_city: list[tuple[list[Road],li
 
         choice = min(availvable_roads, key=lambda x: damaged_roads[x])
 
-        to = set(map.roads[choice][:2])-visited
+        to = set(map.roads[choice][:2]) - visited
         from_ = visited & set(map.roads[choice][:2])
 
         for index, road in enumerate(availvable_roads):
