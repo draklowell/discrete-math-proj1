@@ -3,8 +3,9 @@ Command line interface for the RRS module.
 """
 
 import argparse
-import rrs.files
+
 import rrs.algorithm
+import rrs.files
 
 
 def main():
@@ -41,8 +42,8 @@ def main():
         default="stdout",
         dest="output_path",
         help=(
-            "Path to the output file, where list of roads that are required to be repaired will be written. "
-            "Default: stdout"
+            "Path to the output file, where list of roads that are required to be repaired "
+            "will be written. Default: stdout"
         ),
     )
     parser.add_argument(
