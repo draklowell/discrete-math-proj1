@@ -83,57 +83,40 @@ def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[list[l
 
 def get_roads_to_recover(
     map: Map,
-    isolated_roads_city: list[tuple[list[Road], list[City]]],
+    isolated_regions: list,
     damaged_roads: dict[str, float],
 ) -> set[str]:
     """
     Get roads to recover as a spanning tree using the Prima algorithm.
 
     :param map: Map
-    :param isolated_roads_city: list[tuple[list[Road],list[City]]],
-    roads names that connect isolated regions
-    and city names in this connectivity component from get_isolated_roads
+    :param isolated_regions: list,
+        road names that connect isolated regions
+        and city names in this connectivity component from get_isolated_roads
     :param damaged_roads: dict[str, float], list of damaged roads
 
     :returns: set[str], roads to recover
-
     """
 
-    def find_nodes_with_same_roads():
-        res = {}
-        for road in damaged_roads:
-            components_connected = []
-            for index, component in enumerate(isolated_roads_city):
-                component = component[0]
-                if road in component:
-                    components_connected.append(index)
-                if len(components_connected) == 2:
-                    res[road] = components_connected
-                    break
-        return res
+    components = list(zip(*isolated_regions[0]))[0]
+    roads = isolated_regions[1]
 
-    mst = set()  # Список для збереження мінімального кістякового дерева
-    visited = set()  # Множина для збереження відвіданих вузлів
-    from_to = find_nodes_with_same_roads()
+    roads_to_recover = set()
+    visited_components = set()
 
-    availvable_roads = []
-    while len(isolated_roads_city) > 1:
-        availvable_roads.extend(isolated_roads_city[0][0])
+    available_roads = set(components[0])
+    while available_roads:
+        road = min(available_roads, key=lambda x: damaged_roads[x]*map.roads[x].distance)
+        available_roads.remove(road)
 
-        availvable_roads = list(set(availvable_roads) - mst)
+        if roads[road][0] not in visited_components:
+            available_roads |= set(components[roads[road][0]])
+            visited_components.add(roads[road][0])
+            roads_to_recover.add(road)
 
-        choice = min(availvable_roads, key=lambda x: damaged_roads[x])
+        if roads[road][1] not in visited_components:
+            available_roads |= set(components[roads[road][1]])
+            visited_components.add(roads[road][1])
+            roads_to_recover.add(road)
 
-        to = set(map.roads[choice][:2]) - visited
-        from_ = visited & set(map.roads[choice][:2])
-
-        for index, road in enumerate(availvable_roads):
-            if to in from_to[road] and len(from_to[road] & from_) >= 1:
-                del availvable_roads[index]
-                for isolated_road_index, component in enumerate(isolated_roads_city):
-                    component = component[0]
-                    if road in component:
-                        component[isolated_road_index].remove(road)
-        isolated_roads_city.pop(0)
-        mst.add(choice)
-    return mst
+    return roads_to_recover
