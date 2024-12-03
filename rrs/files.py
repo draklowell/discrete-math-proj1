@@ -59,7 +59,11 @@ def read_map(path: str) -> Map:
         center = listed_file[0].strip()
 
         for line in listed_file[1:]:
-            road, city1, city2, distance = line.split(", ")
+            line = line.strip()
+            if not line:
+                continue
+
+            road, city1, city2, distance = line.split(",")
 
             city1 = city1.strip()
             city2 = city2.strip()
@@ -89,6 +93,8 @@ def read_damaged_roads(path: str) -> dict[str, float]:
     with open(path, "r", encoding="utf-8") as file:
         for line in file:
             line = line.strip()
+            if not line:
+                continue
 
             road_name, damage = line.split(",")
             damaged_roads[road_name.strip()] = float(damage.strip())
