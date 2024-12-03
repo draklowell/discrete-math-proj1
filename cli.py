@@ -3,8 +3,9 @@ Command line interface for the RRS module.
 """
 
 import argparse
-import graph_handling
-import algorithm
+
+import rrs.algorithm
+import rrs.files
 
 
 def main():
@@ -41,25 +42,54 @@ def main():
         default="stdout",
         dest="output_path",
         help=(
-            "Path to the output file, where list of roads that are required to be repaired. "
+            "Path to the output file, where list of roads that are required to be repaired "
+            "will be written. Default: stdout"
+        ),
+    )
+    parser.add_argument(
+        "-c",
+        "--components",
+        type=str,
+        default="stdout",
+        dest="components_path",
+        help=(
+            "Path to the output file, where list of isolated regions will be written. "
             "Default: stdout"
         ),
     )
     args = parser.parse_args()
 
     try:
-        map_ = graph_handling.read_map(args.map_path)
+        map_ = rrs.files.read_map(args.map_path)
     except FileNotFoundError:
         print("Invalid path to the map file.")
 
     try:
-        damaged_roads = graph_handling.read_damaged_roads(args.damaged_roads_path)
+        damaged_roads = rrs.files.read_damaged_roads(args.damaged_roads_path)
     except FileNotFoundError:
         print("Invalid path to the damaged roads file.")
 
-    roads_to_recover = algorithm.spanning_tree_prima(
-        map_, algorithm.get_components(map_, damaged_roads), damaged_roads
+    isolated_regions = rrs.algorithm.get_isolated_regions(map_, damaged_roads)
+
+    if not args.components_path or args.components_path == "stdout":
+        print("Successfully found isolated regions:")
+        for region in isolated_regions[0]:
+            cities = ", ".join(region[1])
+            print(f" - {cities}")
+        print()
+    else:
+        with open(args.components_path, "w", encoding="utf8") as file:
+            for region in isolated_regions[0]:
+                cities = ", ".join(region[1])
+                file.write(f"{cities}\n")
+        print(
+            f'Successfully found isolated regions and stored to "{args.components_path}"'
+        )
+
+    roads_to_recover = rrs.algorithm.get_roads_to_recover(
+        map_, isolated_regions, damaged_roads
     )
+
     if not args.output_path or args.output_path == "stdout":
         print("Successfully found best strategy to recover roads:")
         for road in roads_to_recover:
