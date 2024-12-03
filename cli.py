@@ -41,7 +41,18 @@ def main():
         default="stdout",
         dest="output_path",
         help=(
-            "Path to the output file, where list of roads that are required to be repaired. "
+            "Path to the output file, where list of roads that are required to be repaired will be written. "
+            "Default: stdout"
+        ),
+    )
+    parser.add_argument(
+        "-c",
+        "--components",
+        type=str,
+        default="stdout",
+        dest="components_path",
+        help=(
+            "Path to the output file, where list of isolated regions will be written. "
             "Default: stdout"
         ),
     )
@@ -57,9 +68,27 @@ def main():
     except FileNotFoundError:
         print("Invalid path to the damaged roads file.")
 
+    isolated_regions = rrs.algorithm.get_isolated_regions(map_, damaged_roads)
+
+    if not args.components_path or args.components_path == "stdout":
+        print("Successfully found isolated regions:")
+        for region in isolated_regions[0]:
+            cities = ", ".join(region[1])
+            print(f" - {cities}")
+        print()
+    else:
+        with open(args.components_path, "w", encoding="utf8") as file:
+            for region in isolated_regions[0]:
+                cities = ", ".join(region[1])
+                file.write(f"{cities}\n")
+        print(
+            f'Successfully found isolated regions and stored to "{args.components_path}"'
+        )
+
     roads_to_recover = rrs.algorithm.get_roads_to_recover(
-        map_, rrs.algorithm.get_isolated_regions(map_, damaged_roads), damaged_roads
+        map_, isolated_regions, damaged_roads
     )
+
     if not args.output_path or args.output_path == "stdout":
         print("Successfully found best strategy to recover roads:")
         for road in roads_to_recover:
