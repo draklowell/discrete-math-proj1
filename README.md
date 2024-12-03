@@ -1,3 +1,4 @@
+
 # Комп'ютерний проект: Служба Швидкого Реагування
 ## Розподіл роботи:
 - Андрій Кривий: Command Line Interface, Звіт, Набори даних для тестування
@@ -42,22 +43,33 @@ E43, 23.6
 ## Робота з командним інтерфейсом
 Командний інтерфейс реалізований за допомогою модуля `argparse`. Для отримання детальнішої інформації потрібно викликати команду `python cli.py --help`:
 ```
-usage: Rapid Response Service, road services [-h] -m MAP_PATH -i DAMAGED_ROADS_PATH [-o OUTPUT_PATH]
+usage: Rapid Response Service, road services [-h] -m MAP_PATH -i
+                                             DAMAGED_ROADS_PATH
+                                             [-o OUTPUT_PATH]
+                                             [-c COMPONENTS_PATH]
 
 options:
   -h, --help            show this help message and exit
   -m MAP_PATH, --map MAP_PATH
-                        Path to the csv file that contains the map in the form of list of all roads, their distances and center city name.
+                        Path to the csv file that contains the map in the form
+                        of list of all roads, their distances and center city
+                        name.
   -i DAMAGED_ROADS_PATH, --input DAMAGED_ROADS_PATH
-                        Path to the csv file that contains list of damaged roads and complexity of their repairment per km.
+                        Path to the csv file that contains list of damaged
+                        roads and complexity of their repairment per km.
   -o OUTPUT_PATH, --output OUTPUT_PATH
-                        Path to the output file, where list of roads that are required to be repaired. Default: stdout
+                        Path to the output file, where list of roads that are
+                        required to be repaired will be written. Default:
+                        stdout
+  -c COMPONENTS_PATH, --components COMPONENTS_PATH
+                        Path to the output file, where list of isolated
+                        regions will be written. Default: stdout
 ```
 P.S. `stdout` - вивід у термінал
 
 Приклади використання:
 ```bash
-python cli.py -m map.csv -i damaged-roads.csv -o roads-to-recover -r isolated-regions
+python cli.py -m map.csv -i damaged-roads.csv -o roads-to-recover -c isolated-regions
 python cli.py -m map.csv -i damaged-roads.csv
 ```
 ## Робота з графічним інтерфейсом
