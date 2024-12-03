@@ -3,7 +3,7 @@ Rapid Response Service library.
 Module for working with the map in the form of graph.
 """
 
-from rrs.datatypes import Map, Road, City
+from rrs.datatypes import City, Map, Road
 
 
 def write_dot_graph(path: str, map_: Map, damaged_roads: dict[str, float]) -> str:
@@ -81,8 +81,8 @@ def read_damaged_roads(path: str) -> dict[str, float]:
     :param path: str, path to the file
 
     :returns: dict[str, float], damaged roads in the form of dict
-    where key is the road name and value is the complexity of repairing
-    it
+        where key is the road name and value is the complexity of
+        repairing it per km
     """
     damaged_roads = {}
 

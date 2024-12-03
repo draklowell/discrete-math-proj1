@@ -3,19 +3,32 @@ Rapid Response Service library.
 Module for working with algorithms for graph.
 """
 
-from rrs.datatypes import Map, Road, City
+from rrs.datatypes import City, Map, Road
 
 
 def add_roads_to_componenets(
-    map: Map,
+    map_: Map,
     damaged_roads: dict[str, float],
     city_components: list[list[list[Road], list[City]]],
-) -> list[list[list[Road], list[City]], dict[list[int]]]:
-    """ """
+) -> tuple[list[list[str]], dict[list[int]]]:
+    """
+    Add roads connecting different components to the isolated roads list.
+
+    :param map_: Map
+    :param damaged_roads: dict[str, float], list of damaged roads
+
+    :returns: tuple[list[list[str]], dict[list[int]]],
+        1. The first list contains components as the list in the
+           [roads, cities] form, where roads and cities are lists of
+           names of roads and cities respectively;
+        2. The second dict contains damaged roads as the dict, where
+           keys are road names and values are lists of component indecies,
+           that are connected with this road.
+    """
     road_with_component = {}
     for road in damaged_roads:
-        city1 = map.roads[road].city1
-        city2 = map.roads[road].city2
+        city1 = map_.roads[road].city1
+        city2 = map_.roads[road].city2
         for index, component in enumerate(city_components):
             component = component[1]
             if city1 in component and city2 in component:
@@ -36,17 +49,22 @@ def add_roads_to_componenets(
     return city_components, road_with_component
 
 
-def get_isolated_roads(
-    map: Map, damaged_roads: dict[str, float]
-) -> list[list[list[Road], list[City]], dict[list]]:
+def get_isolated_regions(
+    map_: Map, damaged_roads: dict[str, float]
+) -> tuple[list[list[str]], dict[list[int]]]:
     """
     Get isolated regions of the map.
 
-    :param map: Map
+    :param map_: Map
     :param damaged_roads: dict[str, float], list of damaged roads
 
-    :returns: list[tuple[list[Road],list[City]]], roads names that connect
-    isolated parts to other parts of the map and city names in this connectivity component
+    :returns: tuple[list[list[str]], dict[list[int]]],
+        1. The first list contains components as the list in the
+           [roads, cities] form, where roads and cities are lists of
+           names of roads and cities respectively;
+        2. The second dict contains damaged roads as the dict, where
+           keys are road names and values are lists of component indecies,
+           that are connected with this road.
     """
     visited_cities = set()
     isolated_roads = []
@@ -62,12 +80,12 @@ def get_isolated_roads(
                 visited_cities.add(city)
                 region_cities.append(city)
 
-            for road in map.cities[city].roads:
+            for road in map_.cities[city].roads:
                 if road in damaged_roads:
                     continue
 
-                city1 = map.roads[road].city1
-                city2 = map.roads[road].city2
+                city1 = map_.roads[road].city1
+                city2 = map_.roads[road].city2
 
                 if city1 != city and city1 not in visited_cities:
                     stack.append(city1)
@@ -77,51 +95,48 @@ def get_isolated_roads(
         isolated_roads.append([region_roads, region_cities])
 
     # Будемо починати з обл центра
-    dfs_iterative(map.center)
-    for city_name in map.cities:
+    dfs_iterative(map_.center)
+    for city_name in map_.cities:
         if city_name not in visited_cities:
             dfs_iterative(city_name)
 
-    return add_roads_to_componenets(map, damaged_roads, isolated_roads)
+    return add_roads_to_componenets(map_, damaged_roads, isolated_roads)
 
 
 def get_roads_to_recover(
-    map: Map,
-    isolated_regions: list,
+    map_: Map,
+    isolated_regions: tuple[list[list[str]], dict[list[int]]],
     damaged_roads: dict[str, float],
 ) -> set[str]:
     """
     Get roads to recover as a spanning tree using the Prima algorithm.
 
-    :param map: Map
-    :param isolated_regions: list,
-        road names that connect isolated regions
-        and city names in this connectivity component from get_isolated_roads
+    :param map_: Map
+    :param isolated_regions: tuple[list[list[str]], dict[list[int]]],
+        isolated regions from the get_isolated_regions function
     :param damaged_roads: dict[str, float], list of damaged roads
 
     :returns: set[str], roads to recover
     """
-
-    components = list(zip(*isolated_regions[0]))[0]
-    roads = isolated_regions[1]
+    components, roads = isolated_regions
 
     roads_to_recover = set()
     visited_components = set()
 
-    available_roads = set(components[0])
+    available_roads = set(components[0][0])
     while available_roads:
         road = min(
-            available_roads, key=lambda x: damaged_roads[x] * map.roads[x].distance
+            available_roads, key=lambda x: damaged_roads[x] * map_.roads[x].distance
         )
         available_roads.remove(road)
 
         if roads[road][0] not in visited_components:
-            available_roads |= set(components[roads[road][0]])
+            available_roads |= set(components[roads[road][0]][0])
             visited_components.add(roads[road][0])
             roads_to_recover.add(road)
 
         if roads[road][1] not in visited_components:
-            available_roads |= set(components[roads[road][1]])
+            available_roads |= set(components[roads[road][1]][0])
             visited_components.add(roads[road][1])
             roads_to_recover.add(road)
 
