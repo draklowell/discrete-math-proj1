@@ -56,9 +56,7 @@ def read_map(path: str) -> Map:
     with open(path, "r", encoding="utf-8") as file:
         listed_file = file.readlines()
 
-        center_city = listed_file[0].strip()
-        center_city_roads = get_city_roads_names(center_city, listed_file)
-        cities.setdefault(center_city, City(roads=center_city_roads, is_center=True))
+        center = listed_file[0].strip()
 
         for line in listed_file[1:]:
             road, city1, city2, distance = line.split(", ")
@@ -69,11 +67,11 @@ def read_map(path: str) -> Map:
             roads.setdefault(road, Road(city1=city1, city2=city2, distance=distance))
 
             city1_roads = get_city_roads_names(city1, listed_file)
-            cities.setdefault(city1, City(city1_roads, is_center=False))
+            cities.setdefault(city1, City(city1_roads))
             city2_roads = get_city_roads_names(city2, listed_file)
-            cities.setdefault(city2, City(city2_roads, is_center=False))
+            cities.setdefault(city2, City(city2_roads))
 
-    return Map(roads, cities)
+    return Map(roads, cities, center)
 
 
 def read_damaged_roads(path: str) -> dict[str, float]:
