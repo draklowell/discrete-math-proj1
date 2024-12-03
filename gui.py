@@ -152,9 +152,10 @@ def main():
 
         label.config(image=image)
 
+        roads_text = ", ".join(list(roads))
         tk.Label(
             right_frame,
-            text=f"Дороги які слід відремонтувати: {roads}",
+            text=f"Дороги які слід відремонтувати:\n{roads_text}",
             font=(FONT, 15),
             background="white",
         ).pack(side=tk.TOP, pady=10, padx=10)
