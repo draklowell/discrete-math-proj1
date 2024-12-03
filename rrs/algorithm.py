@@ -5,14 +5,18 @@ Module for working with algorithms for graph.
 
 from rrs.datatypes import Map, Road, City
 
-def add_roads_to_componenets(map: Map, damaged_roads: dict[str, float], city_components: list[list[list[Road],list[City]]]) -> list[list[list[Road],list[City]], dict[list[int]]]:
-    """
-    """
+
+def add_roads_to_componenets(
+    map: Map,
+    damaged_roads: dict[str, float],
+    city_components: list[list[list[Road], list[City]]],
+) -> list[list[list[Road], list[City]], dict[list[int]]]:
+    """ """
     road_with_component = {}
     for road in damaged_roads:
         city1 = map.roads[road].city1
         city2 = map.roads[road].city2
-        for index,component in enumerate(city_components):
+        for index, component in enumerate(city_components):
             component = component[1]
             if city1 in component and city2 in component:
                 break
@@ -29,12 +33,12 @@ def add_roads_to_componenets(map: Map, damaged_roads: dict[str, float], city_com
                 else:
                     road_with_component[road] = [index]
 
-    city_components.append(road_with_component)
-    return city_components
+    return city_components, road_with_component
 
 
-
-def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[list[list[Road],list[City]], dict[list]]:
+def get_isolated_roads(
+    map: Map, damaged_roads: dict[str, float]
+) -> list[list[list[Road], list[City]], dict[list]]:
     """
     Get isolated regions of the map.
 
@@ -42,7 +46,7 @@ def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[list[l
     :param damaged_roads: dict[str, float], list of damaged roads
 
     :returns: list[tuple[list[Road],list[City]]], roads names that connect
-    isolated parts to other parts of the map and city names in this connectivity component 
+    isolated parts to other parts of the map and city names in this connectivity component
     """
     visited_cities = set()
     isolated_roads = []
@@ -70,7 +74,7 @@ def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[list[l
                 elif city2 != city and city2 not in visited_cities:
                     stack.append(city2)
 
-        isolated_roads.append([region_roads,region_cities])
+        isolated_roads.append([region_roads, region_cities])
 
     # Будемо починати з обл центра
     dfs_iterative(map.center)
@@ -78,7 +82,7 @@ def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[list[l
         if city_name not in visited_cities:
             dfs_iterative(city_name)
 
-    return add_roads_to_componenets(map,damaged_roads,isolated_roads)
+    return add_roads_to_componenets(map, damaged_roads, isolated_roads)
 
 
 def get_roads_to_recover(
@@ -106,7 +110,9 @@ def get_roads_to_recover(
 
     available_roads = set(components[0])
     while available_roads:
-        road = min(available_roads, key=lambda x: damaged_roads[x]*map.roads[x].distance)
+        road = min(
+            available_roads, key=lambda x: damaged_roads[x] * map.roads[x].distance
+        )
         available_roads.remove(road)
 
         if roads[road][0] not in visited_components:
