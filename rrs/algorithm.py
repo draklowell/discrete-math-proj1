@@ -5,32 +5,36 @@ Module for working with algorithms for graph.
 
 from rrs.datatypes import Map, Road, City
 
-
-def check_same_road(map: Map, check_road: str) -> bool:
+def add_roads_to_componenets(map: Map, damaged_roads: dict[str, float], city_components: list[list[list[Road],list[City]]]) -> list[list[list[Road],list[City]], dict[list[int]]]:
     """
-    Checks whether there is another road connecting the same two cities as the given road.
-
-    :param map: Map
-        A data structure representing the map, containing roads and cities.
-        - roads: A dictionary where each key is a road name (str) and the value is a Road object.
-        - cities: A dictionary where each key is a city name (str) and the value is a City object.
-    :param check_road: str
-        The name of the road to check for redundancy.
-
-    :return: bool
-        Returns True if there is another road connecting the same two cities as the given road.
-        Returns False otherwise.
     """
-    city1, city2 = map.roads[check_road].city1, map.roads[check_road].city2
-    for road_in_city in map.cities[city1].roads:
-        if road_in_city != check_road and road_in_city in map.cities[city2].roads:
-            return True
-    return False
+    road_with_component = {}
+    for road in damaged_roads:
+        city1 = map.roads[road].city1
+        city2 = map.roads[road].city2
+        for index,component in enumerate(city_components):
+            component = component[1]
+            if city1 in component and city2 in component:
+                break
+            if city1 in component:
+                city_components[index][0].append(road)
+                if road in road_with_component:
+                    road_with_component[road].append(index)
+                else:
+                    road_with_component[road] = [index]
+            if city2 in component:
+                city_components[index][0].append(road)
+                if road in road_with_component:
+                    road_with_component[road].append(index)
+                else:
+                    road_with_component[road] = [index]
+
+    city_components.append(road_with_component)
+    return city_components
 
 
-def get_isolated_roads(
-    map: Map, damaged_roads: dict[str, float]
-) -> list[tuple[list[Road], list[City]]]:
+
+def get_isolated_roads(map: Map, damaged_roads: dict[str, float]) -> list[list[list[Road],list[City]], dict[list]]:
     """
     Get isolated regions of the map.
 
@@ -38,14 +42,13 @@ def get_isolated_roads(
     :param damaged_roads: dict[str, float], list of damaged roads
 
     :returns: list[tuple[list[Road],list[City]]], roads names that connect
-    isolated parts to other parts of the map and city names in this connectivity component
+    isolated parts to other parts of the map and city names in this connectivity component 
     """
     visited_cities = set()
     isolated_roads = []
 
-    # Будемо починати з обл центра
     def dfs_iterative(start: str):
-        stack = [start]  # Ініціалізуємо стек із початковим вузлом
+        stack = [start]
         region_roads = []
         region_cities = []
         while stack:
@@ -54,11 +57,6 @@ def get_isolated_roads(
             if city not in visited_cities:
                 visited_cities.add(city)
                 region_cities.append(city)
-
-            for road in map.cities[city].roads:
-                if road in damaged_roads and road not in region_roads:
-                    if not check_same_road(map, road):
-                        region_roads.append(road)
 
             for road in map.cities[city].roads:
                 if road in damaged_roads:
@@ -72,12 +70,15 @@ def get_isolated_roads(
                 elif city2 != city and city2 not in visited_cities:
                     stack.append(city2)
 
-        isolated_roads.append((region_roads, region_cities))
+        isolated_roads.append([region_roads,region_cities])
 
+    # Будемо починати з обл центра
+    dfs_iterative(map.center)
     for city_name in map.cities:
         if city_name not in visited_cities:
             dfs_iterative(city_name)
-    return isolated_roads
+
+    return add_roads_to_componenets(map,damaged_roads,isolated_roads)
 
 
 def get_roads_to_recover(
