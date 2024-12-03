@@ -4,12 +4,13 @@ GUI for vizualization
 import tkinter as tk
 from tkinter import filedialog
 
+from PIL import Image, ImageTk
+
 import pydot
 
-from rrs.algorithm import spanning_tree_prima, get_components
+from rrs.algorithm import get_roads_to_recover, get_isolated_regions
 from rrs.datatypes import Map
-from rrs.files import read_map
-from graph_handling import read_map, read_damaged_roads
+from rrs.files import read_map, read_damaged_roads
 
 def create_graph(map_:Map, damaged_roads:dict, repaired_roads:list[str]=None) -> str:
     """
@@ -25,7 +26,7 @@ def create_graph(map_:Map, damaged_roads:dict, repaired_roads:list[str]=None) ->
 
     # creating nodes
     for city in map_.cities:
-        color = "green" if map_.cities[city].is_center else "yellow"
+        color = "green" if map_.center == city else "yellow"
         graph.add_node(pydot.Node(city, style="filled", fillcolor=color))
 
     # creating edges
@@ -45,11 +46,31 @@ def create_graph(map_:Map, damaged_roads:dict, repaired_roads:list[str]=None) ->
 
     return file_name
 
+def resize_image_to_fit_frame(image_path, frame_width, frame_height):
+    # Open the image
+    image = Image.open(image_path)
+    
+    # Resize the image while maintaining its aspect ratio
+    image_ratio = image.width / image.height
+    frame_ratio = frame_width / frame_height
+
+    if image_ratio > frame_ratio:
+        # Fit to width
+        new_width = frame_width
+        new_height = int(frame_width / image_ratio)
+    else:
+        # Fit to height
+        new_height = frame_height
+        new_width = int(frame_height * image_ratio)
+
+    resized_image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    return ImageTk.PhotoImage(resized_image)
+
 def main():
     """
     Just main function \_0_/
     """
-    WIDTH, HEIGHT = 1400, 900
+    WIDTH, HEIGHT = 1600, 1000
     font = ("Arial", 25)
 
     window = tk.Tk()
@@ -58,9 +79,9 @@ def main():
     window.resizable(0,0)
     window.configure(background='white')
 
-    right_frame = tk.Frame(window, bg="white")
+    right_frame = tk.Frame(window, bg="white", width=WIDTH//2, height=HEIGHT//2)
     right_frame.pack(side=tk.RIGHT, pady=10, padx=10)
-    left_frame = tk.Frame(window, bg="white")
+    left_frame = tk.Frame(window, bg="white", width=WIDTH//2, height=HEIGHT//2)
     left_frame.pack(side=tk.LEFT, pady=10, padx=10)
 
     filepath_map = False
@@ -75,7 +96,7 @@ def main():
     map_ = read_map(filepath_map)
     damaged_roads = read_damaged_roads(filepath_dr)
 
-    img = tk.PhotoImage(file=create_graph(map_, damaged_roads))
+    img = resize_image_to_fit_frame(create_graph(map_, damaged_roads), WIDTH//2, HEIGHT//2)
     label = tk.Label(left_frame, image=img)
     label.pack(pady=10)
 
@@ -85,12 +106,12 @@ def main():
     tk.Label(right_frame, text=legend_txt, font=font, bg='white').pack(side=tk.TOP, pady = 10)
 
     def clicked(label):
-        roads = spanning_tree_prima(map_, get_components(map_, damaged_roads), damaged_roads)
+        roads = get_roads_to_recover(map_, get_isolated_regions(map_, damaged_roads), damaged_roads)
         global img
-        img = tk.PhotoImage(file=create_graph(map_, damaged_roads, roads))
+        img = resize_image_to_fit_frame(create_graph(map_, damaged_roads, roads), WIDTH//2, HEIGHT//2)
         label.config(image=img)
         tk.Label(right_frame, text=f"Дороги які слід відремонтувати: {roads}", \
-font=font,background='white').pack(side=tk.TOP, pady=10)
+font=("Arial", 15),background='white').pack(side=tk.TOP, pady=10)
     button = tk.Button(right_frame, text="Порахувати", command=lambda: \
 clicked(label), font=("Arial", 25))
     button.pack(side=tk.TOP, pady=10)
