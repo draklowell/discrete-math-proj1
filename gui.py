@@ -99,7 +99,7 @@ def main():
     Entry point for the CLI.
     """
     window = tk.Tk()
-    window.title("help me, please")
+    window.title("Rapid Response Service")
     window.geometry(f"{WIDTH}x{HEIGHT}")
     window.resizable(0, 0)
     window.configure(background="white")
